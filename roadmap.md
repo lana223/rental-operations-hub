@@ -10,9 +10,9 @@
 
 # Waiting on user input
 
-- [ ] Rebuild the front-end booking modal with qualification, local-time calendar, and confirmation steps.
-- [ ] Add client-side validation, disabled/loading/error states, and zero-unit checklist guidance.
-- [ ] Update the checklist modal and verify both flows at 1440px and 390px.
+- [x] Rebuild the front-end booking modal with qualification, local-time calendar, and confirmation steps.
+- [x] Add client-side validation, disabled/loading/error states, and zero-unit checklist guidance.
+- [x] Update the checklist modal and verify both flows at 1440px and 390px.
 
 
 - [ ] Hide the “Edit with Lovable” badge — blocked because this workspace requires an editor role on a Pro plan or higher.

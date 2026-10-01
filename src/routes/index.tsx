@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowRight, CalendarDays, Check, ClipboardCheck, Link2Off, Loader2, TrendingDown, X } from "lucide-react";
+import { addDays, format, isBefore, startOfDay } from "date-fns";
+import { z } from "zod";
+import { ArrowDown, ArrowRight, CalendarDays, Check, ClipboardCheck, Download, Link2Off, Loader2, TrendingDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -94,40 +96,120 @@ const faq = [
   ["Do I need Base360 already to join?", "No. Base360 access is included during the programme — you don't need to be a customer beforehand."],
 ];
 
-function BookingDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+const bookingSchema = z.object({
+  name: z.string().trim().min(2, "Please enter your name.").max(100, "Name must be 100 characters or fewer."),
+  email: z.string().trim().email("Please enter a valid email address.").max(255, "Email must be 255 characters or fewer."),
+  units: z.enum(["0", "1–2", "3–10", "11–30", "30+"], { message: "Please choose your current number of units." }),
+  target: z.enum(["Double my units", "Automate operations", "Improve margins"], { message: "Please choose your target." }),
+  city: z.string().trim().max(100, "City must be 100 characters or fewer."),
+  budget: z.enum(["Still exploring", "Under $5,000", "$5,000–$10,000", "$10,000+"], { message: "Please choose a budget band." }),
+});
+
+type BookingData = z.infer<typeof bookingSchema>;
+type BookingField = keyof BookingData;
+
+const initialBookingData: BookingData = { name: "", email: "", units: "" as BookingData["units"], target: "" as BookingData["target"], city: "", budget: "" as BookingData["budget"] };
+const timeSlots = ["9:30 AM", "11:00 AM", "2:00 PM", "4:30 PM"];
+
+function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onOpenChange: (open: boolean) => void; onChecklist: () => void }) {
   const [step, setStep] = useState<"form" | "calendar" | "done">("form");
   const [loading, setLoading] = useState(false);
-  const [units, setUnits] = useState("");
-  const [goal, setGoal] = useState("");
-  const [budget, setBudget] = useState("");
-  const [email, setEmail] = useState("");
-  const ready = units.trim() && goal.trim() && budget && email.includes("@");
+  const [submitError, setSubmitError] = useState("");
+  const [data, setData] = useState<BookingData>(initialBookingData);
+  const [errors, setErrors] = useState<Partial<Record<BookingField, string>>>({});
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState("");
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local time";
+  const ready = bookingSchema.safeParse(data).success;
 
-  const continueToCalendar = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!ready) return;
-    setLoading(true);
-    window.setTimeout(() => { setLoading(false); setStep("calendar"); }, 500);
+  const setField = (field: BookingField, value: string) => {
+    setData((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: undefined }));
+    setSubmitError("");
   };
 
+  const validateField = (field: BookingField) => {
+    const result = bookingSchema.safeParse(data);
+    if (result.success) return;
+    const issue = result.error.issues.find((item) => item.path[0] === field);
+    setErrors((current) => ({ ...current, [field]: issue?.message }));
+  };
+
+  const continueToCalendar = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const result = bookingSchema.safeParse(data);
+    if (!result.success) {
+      const nextErrors: Partial<Record<BookingField, string>> = {};
+      result.error.issues.forEach((issue) => { const field = issue.path[0] as BookingField; if (!nextErrors[field]) nextErrors[field] = issue.message; });
+      setErrors(nextErrors);
+      return;
+    }
+    setLoading(true);
+    setSubmitError("");
+    try {
+      await new Promise<void>((resolve) => window.setTimeout(resolve, 600));
+      if (!window.navigator.onLine) throw new Error("Offline");
+      setStep("calendar");
+    } catch {
+      setSubmitError("Something went wrong. Please try again — your answers have been saved.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const appointmentDate = selectedDate && selectedTime ? `${format(selectedDate, "EEEE, MMMM d")} · ${selectedTime}` : "";
+
+  const addToCalendar = () => {
+    if (!selectedDate || !selectedTime) return;
+    const [clock, period] = selectedTime.split(" ");
+    if (!clock || !period) return;
+    const [rawHour, minute] = clock.split(":").map(Number);
+    if (rawHour === undefined || minute === undefined) return;
+    const hour = (rawHour % 12) + (period === "PM" ? 12 : 0);
+    const start = new Date(selectedDate);
+    start.setHours(hour, minute, 0, 0);
+    const end = new Date(start.getTime() + 30 * 60 * 1000);
+    const stamp = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const calendar = ["BEGIN:VCALENDAR", "VERSION:2.0", "BEGIN:VEVENT", `DTSTART:${stamp(start)}`, `DTEND:${stamp(end)}`, "SUMMARY:Flex Academy strategy call", "DESCRIPTION:Free strategy call with Raouf or Michael.", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "flex-academy-strategy-call.ics";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const resetAfterClose = () => {
+    setStep("form"); setLoading(false); setSubmitError(""); setErrors({}); setData(initialBookingData); setSelectedDate(undefined); setSelectedTime("");
+  };
+
+  const fieldError = (field: BookingField) => errors[field] ? <p className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors[field]}</p> : null;
+
   return (
-    <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(() => setStep("form"), 200); }}>
-      <DialogContent className="max-h-[90vh] w-[calc(100%-2rem)] overflow-y-auto rounded-md sm:max-w-xl">
+    <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(resetAfterClose, 200); }}>
+      <DialogContent className="max-h-[calc(100dvh-1.5rem)] w-[calc(100%-1.5rem)] overflow-y-auto rounded-md p-5 sm:max-w-3xl sm:p-7">
         {step === "form" && <>
-          <DialogHeader><DialogTitle className="font-display text-2xl">Tell us where you're operating now.</DialogTitle><DialogDescription>A short application before choosing a time. It takes about two minutes.</DialogDescription></DialogHeader>
-          <form onSubmit={continueToCalendar} className="mt-3 space-y-4">
-            <label className="block text-sm font-semibold">Your email<Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" className="mt-2 h-11" required /></label>
-            <label className="block text-sm font-semibold">Units you operate today<Input value={units} onChange={(e) => setUnits(e.target.value)} placeholder="e.g. 8 units" className="mt-2 h-11" required /></label>
-            <label className="block text-sm font-semibold">Your next-stage goal<Textarea value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="What do you want to change in the next 12 months?" className="mt-2 min-h-24" required /></label>
-            <label className="block text-sm font-semibold">Investment range<Select value={budget} onValueChange={setBudget}><SelectTrigger className="mt-2 h-11"><SelectValue placeholder="Choose a range" /></SelectTrigger><SelectContent><SelectItem value="exploring">Still exploring</SelectItem><SelectItem value="under-5k">Under $5,000</SelectItem><SelectItem value="5k-10k">$5,000–$10,000</SelectItem><SelectItem value="10k-plus">$10,000+</SelectItem></SelectContent></Select></label>
-            <Button type="submit" size="xl" className="w-full" disabled={!ready || loading}>{loading ? <><Loader2 className="animate-spin" /> Loading…</> : <>Choose a time <ArrowRight /></>}</Button>
+          <DialogHeader><DialogTitle className="font-display text-2xl sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription>20–30 min · no pitch</DialogDescription></DialogHeader>
+          <form onSubmit={continueToCalendar} className="mt-3 grid gap-4 sm:grid-cols-2" noValidate>
+            <label className="block text-sm font-semibold">Name<Input value={data.name} onChange={(e) => setField("name", e.target.value)} onBlur={() => validateField("name")} maxLength={100} className="mt-2 h-11 w-full" aria-invalid={!!errors.name} />{fieldError("name")}</label>
+            <label className="block text-sm font-semibold">Email<Input type="email" value={data.email} onChange={(e) => setField("email", e.target.value)} onBlur={() => validateField("email")} maxLength={255} className="mt-2 h-11 w-full" aria-invalid={!!errors.email} />{fieldError("email")}</label>
+            <label className="block text-sm font-semibold">Units today<Select value={data.units} onValueChange={(value) => setField("units", value)}><SelectTrigger aria-label="Units today" className="mt-2 h-11 w-full" aria-invalid={!!errors.units}><SelectValue placeholder="Choose a range" /></SelectTrigger><SelectContent>{["0", "1–2", "3–10", "11–30", "30+"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select>{fieldError("units")}</label>
+            <label className="block text-sm font-semibold">Target<Select value={data.target} onValueChange={(value) => setField("target", value)}><SelectTrigger aria-label="Target" className="mt-2 h-11 w-full" aria-invalid={!!errors.target}><SelectValue placeholder="Choose your target" /></SelectTrigger><SelectContent>{["Double my units", "Automate operations", "Improve margins"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select>{fieldError("target")}</label>
+            <label className="block text-sm font-semibold">City <span className="font-normal text-muted-foreground">(optional)</span><Input aria-label="City" value={data.city} onChange={(e) => setField("city", e.target.value)} onBlur={() => validateField("city")} placeholder="e.g. London" maxLength={100} className="mt-2 h-11 w-full" aria-invalid={!!errors.city} /><span className="mt-1.5 block text-xs font-normal text-muted-foreground">Helps us prepare for the call</span>{fieldError("city")}</label>
+            <label className="block text-sm font-semibold">Budget band<Select value={data.budget} onValueChange={(value) => setField("budget", value)}><SelectTrigger aria-label="Budget band" className="mt-2 h-11 w-full" aria-invalid={!!errors.budget}><SelectValue placeholder="Choose a range" /></SelectTrigger><SelectContent>{["Still exploring", "Under $5,000", "$5,000–$10,000", "$10,000+"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select>{fieldError("budget")}</label>
+            {data.units === "0" && <div className="rounded-md border border-accent/50 bg-accent/10 p-4 text-sm leading-6 sm:col-span-2"><p>You’re welcome to continue. If you’re still getting started, the free checklist may be more useful right now.</p><Button type="button" variant="link" className="mt-2" onClick={onChecklist}>Get the free checklist <ArrowRight /></Button></div>}
+            {submitError && <p className="text-sm font-medium text-destructive sm:col-span-2" role="alert">{submitError}</p>}
+            <Button type="submit" size="xl" className="w-full sm:col-span-2" disabled={!ready || loading}>{loading ? <><Loader2 className="animate-spin" /> Loading…</> : <>Choose a time <ArrowRight /></>}</Button>
           </form>
         </>}
         {step === "calendar" && <>
-          <DialogHeader><DialogTitle className="font-display text-2xl">Choose a time.</DialogTitle><DialogDescription>Select a sample time below. The live calendar connection will be added before launch.</DialogDescription></DialogHeader>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">{["Tue · 10:00 AM", "Tue · 2:30 PM", "Wed · 11:30 AM", "Thu · 3:00 PM"].map((time) => <Button key={time} variant="outline" className="h-12 justify-start" onClick={() => setStep("done")}><CalendarDays />{time}</Button>)}</div>
+          <DialogHeader><DialogTitle className="font-display text-2xl sm:text-3xl">Pick a time for your 20–30 min call</DialogTitle><DialogDescription>Times shown in {timeZone}.</DialogDescription></DialogHeader>
+          <div className="mt-3 grid gap-6 md:grid-cols-[auto_1fr]">
+            <div className="pointer-events-auto overflow-x-auto rounded-md border border-border"><Calendar mode="single" selected={selectedDate} onSelect={(date) => { setSelectedDate(date); setSelectedTime(""); }} disabled={(date) => isBefore(date, startOfDay(new Date())) || date.getDay() === 0 || date.getDay() === 6} fromDate={new Date()} toDate={addDays(new Date(), 45)} initialFocus className="pointer-events-auto mx-auto p-3" /></div>
+            <div><p className="text-sm font-semibold">{selectedDate ? format(selectedDate, "EEEE, MMMM d") : "Choose a date to see times"}</p><div className="mt-3 grid grid-cols-2 gap-3">{timeSlots.map((time) => <Button key={time} type="button" variant={selectedTime === time ? "secondary" : "outline"} className="h-11 w-full" disabled={!selectedDate} aria-pressed={selectedTime === time} onClick={() => setSelectedTime(time)}>{time}</Button>)}</div><Button type="button" size="xl" className="mt-5 w-full" disabled={!selectedDate || !selectedTime} onClick={() => setStep("done")}>Confirm time <ArrowRight /></Button><Button type="button" variant="link" className="mt-4" onClick={() => setStep("form")}>Back to details</Button></div>
+          </div>
         </>}
-        {step === "done" && <div className="py-8 text-center"><span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-primary"><Check className="h-7 w-7" /></span><DialogTitle className="mt-5 font-display text-2xl">Your call is confirmed.</DialogTitle><DialogDescription className="mx-auto mt-3 max-w-sm">We'll send the details to your email. Bring your current numbers and the biggest bottleneck you want to solve.</DialogDescription><DialogClose asChild><Button variant="outline" className="mt-7">Back to page</Button></DialogClose></div>}
+        {step === "done" && <div className="py-3 text-center sm:py-6"><span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-primary"><Check className="h-7 w-7" /></span><DialogTitle className="mt-5 font-display text-3xl">You're booked.</DialogTitle><DialogDescription className="mx-auto mt-3 max-w-md text-base">{appointmentDate}<br />{timeZone} · with Raouf or Michael</DialogDescription><div className="mx-auto mt-7 max-w-md rounded-md border border-border bg-secondary/35 p-5 text-left"><h3 className="font-display text-lg font-semibold">What to prepare</h3><ul className="mt-3 space-y-2 text-sm text-muted-foreground"><li>• Your number of units: {data.units}</li><li>• Your target: {data.target}</li><li>• Your biggest blocker</li></ul></div><div className="mx-auto mt-7 flex max-w-md flex-col gap-3"><Button size="xl" onClick={addToCalendar}><Download /> Add to calendar</Button><Button variant="outline" size="xl" onClick={onChecklist}>Get the free checklist</Button><Button variant="link" className="mx-auto" onClick={() => { setStep("calendar"); setSelectedTime(""); }}>Reschedule</Button></div><p className="mt-6 text-xs text-muted-foreground">A confirmation email is on its way.</p></div>}
       </DialogContent>
     </Dialog>
   );
@@ -136,7 +218,8 @@ function BookingDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
 function ChecklistDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
-  return <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(() => setSent(false), 200); }}><DialogContent className="w-[calc(100%-2rem)] rounded-md sm:max-w-md">{sent ? <div className="py-7 text-center"><span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary"><Check /></span><DialogTitle className="mt-5 font-display text-2xl">Check your inbox.</DialogTitle><DialogDescription className="mt-3">The STR scaling checklist is on its way.</DialogDescription><DialogClose asChild><Button variant="outline" className="mt-6">Back to page</Button></DialogClose></div> : <><DialogHeader><DialogTitle className="font-display text-2xl">Get the free STR scaling checklist.</DialogTitle><DialogDescription>One practical checklist to find the next system your operation needs.</DialogDescription></DialogHeader><form className="mt-3 space-y-4" onSubmit={(e) => { e.preventDefault(); if (email.includes("@")) setSent(true); }}><label className="block text-sm font-semibold">Your email<Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" className="mt-2 h-11" required /></label><Button type="submit" size="xl" className="w-full" disabled={!email.includes("@")}><span>Send me the checklist</span><ArrowRight /></Button></form></>}</DialogContent></Dialog>;
+  const emailValid = z.string().trim().email().max(255).safeParse(email).success;
+  return <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(() => { setSent(false); setEmail(""); }, 200); }}><DialogContent className="w-[calc(100%-1.5rem)] rounded-md sm:max-w-md">{sent ? <div className="py-7 text-center"><span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary"><Check /></span><DialogTitle className="mt-5 font-display text-2xl">Check your inbox.</DialogTitle><DialogDescription className="mt-3">The STR scaling checklist is on its way.</DialogDescription><DialogClose asChild><Button variant="outline" className="mt-6">Back to page</Button></DialogClose></div> : <><DialogHeader><DialogTitle className="font-display text-2xl">Get the free STR scaling checklist.</DialogTitle><DialogDescription>One practical checklist to find the next system your operation needs.</DialogDescription></DialogHeader><form className="mt-3 space-y-4" onSubmit={(e) => { e.preventDefault(); if (emailValid) setSent(true); }} noValidate><label className="block text-sm font-semibold">Your email<Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" maxLength={255} className="mt-2 h-11 w-full" aria-invalid={email.length > 0 && !emailValid} /></label>{email.length > 0 && !emailValid && <p className="text-xs font-medium text-destructive" role="alert">Please enter a valid email address.</p>}<Button type="submit" size="xl" className="w-full" disabled={!emailValid}><span>Send me the checklist</span><ArrowRight /></Button></form></>}</DialogContent></Dialog>;
 }
 
 function FlexAcademy() {
@@ -372,7 +455,7 @@ function FlexAcademy() {
         </div>
       </footer>
       {showMobileBar && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur sm:hidden"><Button variant="warm" className="w-full" size="xl" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>}
-      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} />
+      <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} onChecklist={() => { setBookingOpen(false); window.setTimeout(() => setChecklistOpen(true), 200); }} />
       <ChecklistDialog open={checklistOpen} onOpenChange={setChecklistOpen} />
     </main>
   );
