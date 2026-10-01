@@ -96,6 +96,7 @@
   --line: oklch(0.77 0.03 145);
   --shadow-card: 0 20px 50px -32px oklch(0.2 0.04 155 / 0.28);
   --shadow-button: 0 12px 26px -16px oklch(0.4 0.14 295 / 0.7);
+  --shadow-method: 20px 24px 0 -8px oklch(0.79 0.12 63 / 0.34);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
