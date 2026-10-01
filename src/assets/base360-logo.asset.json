@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "8df528af-4325-4322-a41a-ab94a82fbf9b",
-  "project_id": "a41dcb5c-639b-546d-aa5c-5f7179db5d73",
-  "url": "/__l5e/assets-v1/8df528af-4325-4322-a41a-ab94a82fbf9b/base360-logo.png",
-  "r2_key": "a/v1/a41dcb5c-639b-546d-aa5c-5f7179db5d73/8df528af-4325-4322-a41a-ab94a82fbf9b/base360-logo.png",
-  "original_filename": "base360-logo.png",
-  "size": 5884,
   "content_type": "image/png",
-  "created_at": "2026-09-30T13:36:09Z"
+  "created_at": "2026-09-30T13:36:09Z",
+  "original_filename": "base360-logo.png",
+  "project_id": "3392e0c0-ed07-4662-9690-d65646fa63ef",
+  "r2_key": "a/v1/3392e0c0-ed07-4662-9690-d65646fa63ef/8df528af-4325-4322-a41a-ab94a82fbf9b/base360-logo.png",
+  "size": 5884,
+  "url": "/__l5e/assets-v1/8df528af-4325-4322-a41a-ab94a82fbf9b/base360-logo.png",
+  "version": 1
 }
