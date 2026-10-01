@@ -3,7 +3,7 @@ import { ArrowDown, ArrowRight, Check, ClipboardCheck, Link2Off, TrendingDown, X
 import { Button } from "@/components/ui/button";
 import dashboardAsset from "@/assets/base360-dashboard.asset.json";
 import baseLogoAsset from "@/assets/base360-logo.asset.json";
-import flexLogoAsset from "@/assets/flex-logo.asset.json";
+import flexLogoAsset from "@/assets/the-flex-logo.webp.asset.json";
 import foundersAsset from "@/assets/founders.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -27,8 +27,8 @@ export const Route = createFileRoute("/")({
 
 const LogoPair = ({ inverse = false }: { inverse?: boolean }) => (
   <div className="flex items-center gap-3">
-    <span className={`flex h-9 w-24 items-center justify-center overflow-hidden rounded-sm ${inverse ? "bg-background" : "bg-brand-deep"}`}>
-      <img src={flexLogoAsset.url} alt="The Flex" className="h-16 w-16 object-cover" />
+    <span className={`flex h-9 w-28 items-center justify-center rounded-sm px-2 ${inverse ? "bg-background" : "bg-secondary/55"}`}>
+      <img src={flexLogoAsset.url} alt="The Flex" className="h-auto w-full object-contain" />
     </span>
     <span className={`h-6 w-px ${inverse ? "bg-brand-deep-foreground/25" : "bg-border"}`} />
     <span className={`flex items-center gap-2 text-sm font-semibold ${inverse ? "text-brand-deep-foreground" : "text-foreground"}`}>
@@ -76,7 +76,11 @@ function FlexAcademy() {
     <main className="overflow-hidden bg-background text-foreground">
       <header className="absolute inset-x-0 top-0 z-20">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
-          <a href="#top" className="font-display text-lg font-bold text-brand-deep-foreground">FLEX <span className="font-medium text-brand-deep-foreground/60">ACADEMY</span></a>
+          <a href="#top" className="flex items-center gap-3" aria-label="Flex Academy, back to top">
+            <span className="flex h-10 w-28 items-center rounded-sm bg-background px-2"><img src={flexLogoAsset.url} alt="The Flex" className="w-full object-contain" /></span>
+            <span className="h-5 w-px bg-brand-deep-foreground/25" />
+            <span className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-brand-deep-foreground">Academy</span>
+          </a>
           <a href="#method" className="hidden items-center gap-2 text-sm font-medium text-brand-deep-foreground/75 hover:text-brand-deep-foreground sm:flex">Explore the programme <ArrowDown className="h-4 w-4" /></a>
         </div>
       </header>
@@ -147,17 +151,50 @@ function FlexAcademy() {
         </div>
       </section>
 
-      <section id="method" className="bg-brand-deep py-24 sm:py-32">
-        <div className="mx-auto max-w-5xl px-5 lg:px-8">
-          <SectionHeading dark eyebrow="How it works" title="12 weeks. Real systems. Real founders." intro="Most STR courses teach theory from a coach. This hands you the systems running a real operation today." />
-          <ol className="relative mx-auto mt-16 max-w-3xl before:absolute before:bottom-5 before:left-5 before:top-5 before:w-px before:bg-brand-deep-foreground/20 sm:before:left-6">
-            {method.map(([title, copy], index) => (
-              <li key={title} className="relative grid grid-cols-[2.5rem_1fr] gap-5 pb-10 last:pb-0 sm:grid-cols-[3rem_1fr] sm:gap-7">
-                <span className="z-10 flex h-10 w-10 items-center justify-center rounded-full border border-accent/50 bg-brand-deep font-display text-sm font-semibold text-accent sm:h-12 sm:w-12">{String(index + 1).padStart(2, "0")}</span>
-                <div className="pt-1 sm:pt-2"><h3 className="text-lg font-semibold text-brand-deep-foreground">{title}</h3><p className="mt-2 text-sm leading-6 text-brand-deep-foreground/65">{copy}</p></div>
-              </li>
-            ))}
-          </ol>
+      <section id="method" className="relative border-y border-border bg-background py-24 sm:py-32">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-2 bg-[linear-gradient(90deg,var(--color-primary)_0_38%,var(--color-accent)_38%_64%,var(--color-brand-deep)_64%)]" />
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid gap-8 border-b border-border pb-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-end">
+            <div>
+              <Eyebrow>The method · 12 weeks</Eyebrow>
+              <p className="max-w-sm text-sm leading-6 text-muted-foreground">A working rhythm for operators who need implementation, not another content library.</p>
+            </div>
+            <h2 className="text-4xl font-semibold leading-[1.05] sm:text-5xl lg:text-7xl">Build the system.<br /><span className="font-normal text-primary">Then run it for real.</span></h2>
+          </div>
+
+          <div className="mt-14 grid gap-12 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+            <ol className="divide-y divide-border border-y border-border">
+              {method.map(([title, copy], index) => (
+                <li key={title} className="group grid grid-cols-[3.25rem_1fr] gap-4 py-7 sm:grid-cols-[4.5rem_1fr] sm:py-9">
+                  <span className="font-display text-2xl font-semibold text-line transition-colors duration-300 group-hover:text-primary sm:text-3xl">{String(index + 1).padStart(2, "0")}</span>
+                  <div>
+                    <h3 className="text-lg font-semibold transition-transform duration-300 group-hover:translate-x-1 sm:text-xl">{title}</h3>
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{copy}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <div className="lg:sticky lg:top-10">
+              <div className="relative overflow-hidden rounded-md bg-brand-deep p-4 shadow-[var(--shadow-method)] sm:p-7">
+                <div className="mb-6 flex items-center justify-between text-brand-deep-foreground">
+                  <div><p className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">Your operating layer</p><p className="mt-2 font-display text-xl font-semibold">Base360, included</p></div>
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-deep-foreground/20 text-sm font-semibold">12</span>
+                </div>
+                <div className="overflow-hidden rounded-sm border border-brand-deep-foreground/15 bg-card">
+                  <img src={dashboardAsset.url} alt="Base360 operating dashboard used during Flex Academy" className="aspect-[1.18/1] w-full object-cover object-top" />
+                </div>
+                <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[0.6875rem] font-semibold text-brand-deep-foreground/70">
+                  <span className="border border-brand-deep-foreground/15 py-2">LEARN</span>
+                  <span className="border border-brand-deep-foreground/15 py-2">INSTALL</span>
+                  <span className="border border-accent/45 bg-accent/10 py-2 text-accent">OPERATE</span>
+                </div>
+              </div>
+              <div className="ml-auto mt-4 flex w-[88%] items-center justify-between border-b border-border pb-4 text-xs text-muted-foreground">
+                <span>Founder guidance</span><ArrowRight className="h-4 w-4 text-primary" /><span>Operating independence</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
