@@ -148,6 +148,7 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
     setSubmitError("");
     try {
       await new Promise<void>((resolve) => window.setTimeout(resolve, 600));
+      if (!window.navigator.onLine) throw new Error("Offline");
       setStep("calendar");
     } catch {
       setSubmitError("Something went wrong. Please try again — your answers have been saved.");
