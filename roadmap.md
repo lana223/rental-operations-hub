@@ -10,6 +10,7 @@
 
 # Waiting on user input
 
+- [ ] Hide the “Edit with Lovable” badge — blocked because this workspace requires an editor role on a Pro plan or higher.
 - [ ] Replace placeholders: years in operation, units managed, Results quotes/names, pricing (FAQ), refund policy.
 - [ ] Real founders bios + photos to replace the current ones.
 - [ ] Connect a real booking calendar (Cal.com/Calendly) and real email delivery for the checklist.
