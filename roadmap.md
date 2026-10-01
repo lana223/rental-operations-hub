@@ -6,6 +6,7 @@
 - [x] Build booking and checklist interaction flows with success/error/loading states.
 - [x] Add the mobile sticky booking bar with correct visibility.
 - [x] Verify desktop and mobile layouts and all CTA flows.
+- [x] Standardize CTA placement, hierarchy, interaction states, contrast, and exclusion-list spacing.
 
 # Waiting on user input
 

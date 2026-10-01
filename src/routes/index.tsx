@@ -165,7 +165,7 @@ function FlexAcademy() {
             <span className="h-5 w-px bg-brand-deep-foreground/25" />
             <span className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-brand-deep-foreground">Academy</span>
           </a>
-          <div className="flex shrink-0 items-center gap-5"><a href="#method" className="hidden items-center gap-2 text-sm font-medium text-brand-deep-foreground/75 hover:text-brand-deep-foreground lg:flex">Explore the programme <ArrowDown className="h-4 w-4" /></a><Button variant="warm" onClick={() => setBookingOpen(true)}>Book a call</Button></div>
+          <div className="flex shrink-0 items-center gap-5"><a href="#method" className="hidden items-center gap-2 text-sm font-medium text-brand-deep-foreground/75 transition-colors hover:text-brand-deep-foreground focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:text-accent lg:flex">Explore the programme <ArrowDown className="h-4 w-4" /></a><Button variant="warm" size="xl" onClick={() => setBookingOpen(true)}>Book a call</Button></div>
         </div>
       </header>
 
@@ -182,7 +182,7 @@ function FlexAcademy() {
               </div>
               <div>
                 <p className="mb-2 text-xs text-brand-deep-foreground/55">Not ready to talk yet?</p>
-                <Button variant="outline" size="xl" className="border-brand-deep-foreground/25 bg-transparent text-brand-deep-foreground shadow-none hover:bg-brand-deep-foreground/10 hover:text-brand-deep-foreground" onClick={() => setChecklistOpen(true)}>Get the free checklist</Button>
+                 <Button variant="outline" size="xl" className="border-brand-deep-foreground/40 text-brand-deep-foreground shadow-none hover:border-brand-deep-foreground/70 hover:bg-brand-deep-foreground/10 hover:text-brand-deep-foreground active:bg-brand-deep-foreground/20" onClick={() => setChecklistOpen(true)}>Get the free checklist</Button>
               </div>
             </div>
             <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-brand-deep-foreground/15 pt-6">
@@ -230,7 +230,6 @@ function FlexAcademy() {
             ))}
           </div>
           <p className="mx-auto mt-12 max-w-3xl text-center font-display text-xl font-semibold leading-8">That's the gap Flex Academy closes — with the exact systems we used to scale past it.</p>
-          <div className="mt-7 flex justify-center"><Button variant="outline" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>
         </div>
       </section>
 
@@ -278,7 +277,7 @@ function FlexAcademy() {
               </div>
             </div>
           </div>
-          <div className="mt-10 flex justify-center"><Button onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>
+          <div className="mt-10 flex justify-center"><Button variant="outline" size="xl" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>
         </div>
       </section>
 
@@ -296,7 +295,7 @@ function FlexAcademy() {
               <div className="border-l border-border pl-5"><h3 className="font-semibold">Michael Buggy</h3><p className="mt-1 text-xs text-muted-foreground">Co-founder, The Flex & Base360</p></div>
             </div>
             <div className="mt-7 flex flex-wrap items-center gap-4"><LogoPair /><span className="text-xs text-muted-foreground">The team behind The Flex and Base360</span></div>
-            <Button className="mt-8" onClick={() => setBookingOpen(true)}>Book a call with Raouf or Michael <ArrowRight /></Button>
+            <Button variant="outline" size="xl" className="mt-8" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button>
           </div>
         </div>
       </section>
@@ -305,9 +304,8 @@ function FlexAcademy() {
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <SectionHeading dark eyebrow="What's included" title="Everything you need to run, not just learn." />
           <div className="mt-14 grid gap-px overflow-hidden rounded-md border border-brand-deep-foreground/15 bg-brand-deep-foreground/15 md:grid-cols-3">
-            {inclusions.map(([title, copy]) => <article key={title} className="bg-brand-deep p-7 sm:p-8"><Check className="h-5 w-5 text-accent" /><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-brand-deep-foreground/65">{copy}</p></article>)}
+            {inclusions.map(([title, copy]) => <article key={title} className="bg-brand-deep p-7 sm:p-8"><Check className="h-5 w-5 text-accent" /><h3 className="mt-5 text-xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-brand-deep-foreground/85">{copy}</p></article>)}
           </div>
-          <div className="mt-10 flex justify-center"><Button variant="warm" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>
         </div>
       </section>
 
@@ -337,13 +335,13 @@ function FlexAcademy() {
           <SectionHeading eyebrow="Before you book a call" title="This isn't for everyone. Here's who it's not for." />
           <div className="mt-14 divide-y divide-border border-y border-border">
             {exclusions.map(([title, copy]) => (
-              <div key={title} className="grid grid-cols-[2rem_1fr] gap-4 py-7 sm:grid-cols-[3rem_1fr]">
-                <X className="mt-1 h-5 w-5 text-muted-foreground" />
+              <div key={title} className="grid grid-cols-[2rem_1fr] gap-4 py-5 sm:grid-cols-[3rem_1fr] sm:py-6">
+                <X className="mt-0.5 h-6 w-6 text-muted-foreground" />
                 <div><h3 className="text-lg font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p></div>
               </div>
             ))}
           </div>
-          <p className="mt-9 text-center text-sm text-muted-foreground">If that's you, the <button className="font-semibold text-primary underline underline-offset-4" onClick={() => setChecklistOpen(true)}>free STR scaling checklist</button> might be a better place to start.</p>
+          <p className="mt-9 text-center text-sm text-muted-foreground">If that's you, the <Button variant="link" onClick={() => setChecklistOpen(true)}>free STR scaling checklist <ArrowRight className="h-3.5 w-3.5" /></Button> might be a better place to start.</p>
         </div>
       </section>
 
@@ -353,7 +351,7 @@ function FlexAcademy() {
           <Accordion type="single" defaultValue="faq-0" collapsible className="mt-14 border-t border-border">
             {faq.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="py-6 text-base font-semibold hover:no-underline sm:text-lg">{question}</AccordionTrigger><AccordionContent className="max-w-3xl pb-6 text-sm leading-7 text-muted-foreground sm:text-base">{answer}</AccordionContent></AccordionItem>)}
           </Accordion>
-          <div className="mt-10 flex flex-col items-center gap-4"><p className="font-display text-xl font-semibold">Still have questions?</p><Button variant="outline" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>
+          <div className="mt-10 flex flex-col items-center gap-4"><p className="font-display text-xl font-semibold">Still have questions?</p><Button variant="outline" size="xl" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>
         </div>
       </section>
 
@@ -362,7 +360,7 @@ function FlexAcademy() {
           <Eyebrow dark>Ready to build the operation?</Eyebrow>
           <h2 className="text-3xl font-semibold sm:text-5xl">Let's see if Flex Academy fits your next stage.</h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-primary-foreground/75">A straightforward 20–30 minute conversation about where your operation is now and what needs to change next.</p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button variant="warm" size="xl" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button><Button variant="outline" size="xl" className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground" onClick={() => setChecklistOpen(true)}>Get the free checklist</Button></div>
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button variant="warm" size="xl" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button><Button variant="outline" size="xl" className="border-primary-foreground/40 text-primary-foreground hover:border-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground active:bg-primary-foreground/20" onClick={() => setChecklistOpen(true)}>Get the free checklist</Button></div>
           <p className="mt-3 text-xs text-primary-foreground/60">20–30 min · no pitch</p>
         </div>
       </section>
@@ -373,7 +371,7 @@ function FlexAcademy() {
           <p className="text-xs text-brand-deep-foreground/50">Built by the team behind The Flex and Base360.</p>
         </div>
       </footer>
-      {showMobileBar && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur sm:hidden"><Button className="w-full" size="lg" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>}
+      {showMobileBar && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur sm:hidden"><Button variant="warm" className="w-full" size="xl" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button></div>}
       <BookingDialog open={bookingOpen} onOpenChange={setBookingOpen} />
       <ChecklistDialog open={checklistOpen} onOpenChange={setChecklistOpen} />
     </main>
