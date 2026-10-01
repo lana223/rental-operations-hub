@@ -161,8 +161,9 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
   const addToCalendar = () => {
     if (!selectedDate || !selectedTime) return;
     const [clock, period] = selectedTime.split(" ");
+    if (!clock || !period) return;
     const [rawHour, minute] = clock.split(":").map(Number);
-    if (rawHour === undefined || minute === undefined || !period) return;
+    if (rawHour === undefined || minute === undefined) return;
     const hour = (rawHour % 12) + (period === "PM" ? 12 : 0);
     const start = new Date(selectedDate);
     start.setHours(hour, minute, 0, 0);
