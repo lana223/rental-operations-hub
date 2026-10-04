@@ -187,10 +187,10 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
 
   return (
     <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(resetAfterClose, 200); }}>
-      <DialogContent className="max-h-[calc(100dvh-1.5rem)] w-[calc(100%-1.5rem)] overflow-y-auto rounded-md p-5 sm:max-w-3xl sm:p-7">
+      <DialogContent className="bottom-0 left-0 top-auto max-h-[calc(100dvh-0.5rem)] w-full translate-x-0 translate-y-0 overflow-y-auto rounded-t-xl border-x-0 border-b-0 bg-background px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-6 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[calc(100dvh-1.5rem)] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-md sm:border sm:p-7">
         {step === "form" && <>
-          <DialogHeader><DialogTitle className="font-display text-2xl sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription>20–30 min · no pitch</DialogDescription></DialogHeader>
-          <form onSubmit={continueToCalendar} className="mt-3 grid gap-4 sm:grid-cols-2" noValidate>
+          <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription className="mt-1">20–30 min · no pitch</DialogDescription></DialogHeader>
+          <form onSubmit={continueToCalendar} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
             <label className="block text-sm font-semibold">Name<Input value={data.name} onChange={(e) => setField("name", e.target.value)} onBlur={() => validateField("name")} maxLength={100} className="mt-2 h-11 w-full" aria-invalid={!!errors.name} />{fieldError("name")}</label>
             <label className="block text-sm font-semibold">Email<Input type="email" value={data.email} onChange={(e) => setField("email", e.target.value)} onBlur={() => validateField("email")} maxLength={255} className="mt-2 h-11 w-full" aria-invalid={!!errors.email} />{fieldError("email")}</label>
             <label className="block text-sm font-semibold">Units today<Select value={data.units} onValueChange={(value) => setField("units", value)}><SelectTrigger aria-label="Units today" className="mt-2 h-11 w-full" aria-invalid={!!errors.units}><SelectValue placeholder="Choose a range" /></SelectTrigger><SelectContent>{["0", "1–2", "3–10", "11–30", "30+"].map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select>{fieldError("units")}</label>
@@ -203,7 +203,7 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
           </form>
         </>}
         {step === "calendar" && <>
-          <DialogHeader><DialogTitle className="font-display text-2xl sm:text-3xl">Pick a time for your 20–30 min call</DialogTitle><DialogDescription>Times shown in {timeZone}.</DialogDescription></DialogHeader>
+          <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Pick a time for your 20–30 min call</DialogTitle><DialogDescription className="mt-1">Times shown in {timeZone}.</DialogDescription></DialogHeader>
           <div className="mt-3 grid gap-6 md:grid-cols-[auto_1fr]">
             <div className="pointer-events-auto overflow-x-auto rounded-md border border-border"><Calendar mode="single" selected={selectedDate} onSelect={(date) => { setSelectedDate(date); setSelectedTime(""); }} disabled={(date) => isBefore(date, startOfDay(new Date())) || date.getDay() === 0 || date.getDay() === 6} fromDate={new Date()} toDate={addDays(new Date(), 45)} initialFocus className="pointer-events-auto mx-auto p-3" /></div>
             <div><p className="text-sm font-semibold">{selectedDate ? format(selectedDate, "EEEE, MMMM d") : "Choose a date to see times"}</p><div className="mt-3 grid grid-cols-2 gap-3">{timeSlots.map((time) => <Button key={time} type="button" variant={selectedTime === time ? "secondary" : "outline"} className="h-11 w-full" disabled={!selectedDate} aria-pressed={selectedTime === time} onClick={() => setSelectedTime(time)}>{time}</Button>)}</div><Button type="button" size="xl" className="mt-5 w-full" disabled={!selectedDate || !selectedTime} onClick={() => setStep("done")}>Confirm time <ArrowRight /></Button><Button type="button" variant="link" className="mt-4" onClick={() => setStep("form")}>Back to details</Button></div>
@@ -253,19 +253,19 @@ function FlexAcademy() {
       </header>
 
       <section id="top" className="relative bg-brand-deep pt-28 text-brand-deep-foreground lg:min-h-[760px] lg:pt-36">
-        <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-20 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-14 sm:gap-14 sm:pb-20 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
           <div className="animate-rise-in">
             <Eyebrow dark>Flex Academy · 12-week operator programme</Eyebrow>
             <h1 className="max-w-2xl text-4xl font-semibold leading-[1.08] sm:text-6xl lg:text-7xl">Turn your short-term rentals into a real company.</h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-brand-deep-foreground/72">The playbook, systems and software the founders of The Flex used to scale — now teaching you to do the same.</p>
-            <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-end">
-              <div>
-                <Button variant="warm" size="xl" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button>
+            <div className="mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:items-end">
+              <div className="w-full sm:w-auto">
+                <Button variant="warm" size="xl" className="w-full sm:w-auto" onClick={() => setBookingOpen(true)}>Book a call <ArrowRight /></Button>
                 <p className="mt-2 text-center text-xs text-brand-deep-foreground/55">20–30 min · no pitch</p>
               </div>
-              <div>
+              <div className="w-full sm:w-auto">
                 <p className="mb-2 text-xs text-brand-deep-foreground/55">Not ready to talk yet?</p>
-                 <Button variant="outline" size="xl" className="border-brand-deep-foreground/40 text-brand-deep-foreground shadow-none hover:border-brand-deep-foreground/70 hover:bg-brand-deep-foreground/10 hover:text-brand-deep-foreground active:bg-brand-deep-foreground/20" onClick={() => setChecklistOpen(true)}>Get the free checklist</Button>
+                 <Button variant="outline" size="xl" className="w-full border-brand-deep-foreground/40 text-brand-deep-foreground shadow-none hover:border-brand-deep-foreground/70 hover:bg-brand-deep-foreground/10 hover:text-brand-deep-foreground active:bg-brand-deep-foreground/20 sm:w-auto" onClick={() => setChecklistOpen(true)}>Get the free checklist</Button>
               </div>
             </div>
             <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-brand-deep-foreground/15 pt-6">
