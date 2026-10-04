@@ -187,7 +187,7 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
 
   return (
     <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(resetAfterClose, 200); }}>
-      <DialogContent className="bottom-0 left-0 top-auto max-h-[calc(100dvh-0.5rem)] w-full translate-x-0 translate-y-0 overflow-y-auto rounded-t-xl border-x-0 border-b-0 bg-background px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-6 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[calc(100dvh-1.5rem)] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-md sm:border sm:p-7">
+      <DialogContent className="inset-0 h-dvh max-h-dvh w-full translate-x-0 translate-y-0 content-start overflow-y-auto rounded-none border-0 bg-background px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.5rem+env(safe-area-inset-top))] sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-md sm:border sm:p-7">
         {step === "form" && <>
           <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription className="mt-1">20–30 min · no pitch</DialogDescription></DialogHeader>
           <form onSubmit={continueToCalendar} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
