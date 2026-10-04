@@ -213,7 +213,7 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
           </div>
         </div>
         {step === "form" && <>
-          <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription className="mt-1">20–30 min · no pitch</DialogDescription></DialogHeader>
+          <DialogHeader className="mt-4 pr-7 text-left sm:mt-5"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription className="mt-1">20–30 min · no pitch</DialogDescription></DialogHeader>
           <form onSubmit={continueToCalendar} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
             <label className="block text-sm font-semibold">Name<Input value={data.name} onChange={(e) => setField("name", e.target.value)} onBlur={() => validateField("name")} maxLength={100} className="mt-2 h-11 w-full" aria-invalid={!!errors.name} />{fieldError("name")}</label>
             <label className="block text-sm font-semibold">Email<Input type="email" value={data.email} onChange={(e) => setField("email", e.target.value)} onBlur={() => validateField("email")} maxLength={255} className="mt-2 h-11 w-full" aria-invalid={!!errors.email} />{fieldError("email")}</label>
@@ -227,7 +227,7 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
           </form>
         </>}
         {step === "calendar" && <>
-          <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Pick a time for your 20–30 min call</DialogTitle><DialogDescription className="mt-1">Times shown in {timeZone}.</DialogDescription></DialogHeader>
+          <DialogHeader className="mt-4 pr-7 text-left sm:mt-5"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Pick a time for your 20–30 min call</DialogTitle><DialogDescription className="mt-1">Times shown in {timeZone}.</DialogDescription></DialogHeader>
           <div className="mt-3 grid gap-6 md:grid-cols-[auto_1fr]">
             <div className="pointer-events-auto overflow-x-auto rounded-md border border-border"><Calendar mode="single" selected={selectedDate} onSelect={(date) => { setSelectedDate(date); setSelectedTime(""); }} disabled={(date) => isBefore(date, startOfDay(new Date())) || date.getDay() === 0 || date.getDay() === 6} fromDate={new Date()} toDate={addDays(new Date(), 45)} initialFocus className="pointer-events-auto mx-auto p-3" /></div>
             <div><p className="text-sm font-semibold">{selectedDate ? format(selectedDate, "EEEE, MMMM d") : "Choose a date to see times"}</p><div className="mt-3 grid grid-cols-2 gap-3">{timeSlots.map((time) => <Button key={time} type="button" variant={selectedTime === time ? "secondary" : "outline"} className="h-11 w-full" disabled={!selectedDate} aria-pressed={selectedTime === time} onClick={() => setSelectedTime(time)}>{time}</Button>)}</div><Button type="button" size="xl" className="mt-5 w-full" disabled={!selectedDate || !selectedTime} onClick={() => setStep("done")}>Confirm time <ArrowRight /></Button><Button type="button" variant="link" className="mt-4" onClick={() => setStep("form")}>Back to details</Button></div>
