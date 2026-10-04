@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { addDays, format, isBefore, startOfDay } from "date-fns";
 import { z } from "zod";
-import { ArrowDown, ArrowRight, CalendarDays, Check, ClipboardCheck, Download, Link2Off, Loader2, TrendingDown, X } from "lucide-react";
+import { ArrowDown, ArrowRight, CalendarDays, Check, ChevronLeft, ClipboardCheck, Download, Link2Off, Loader2, TrendingDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -185,9 +185,33 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
 
   const fieldError = (field: BookingField) => errors[field] ? <p className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors[field]}</p> : null;
 
+  const stepIndex = step === "form" ? 1 : step === "calendar" ? 2 : 3;
+  const goBack = () => {
+    if (step === "calendar") setStep("form");
+    else if (step === "done") setStep("calendar");
+  };
+
   return (
     <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(resetAfterClose, 200); }}>
       <DialogContent className="inset-0 h-dvh max-h-dvh w-full translate-x-0 translate-y-0 content-start overflow-y-auto rounded-none border-0 bg-background px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.5rem+env(safe-area-inset-top))] sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-md sm:border sm:p-7">
+        <div>
+          <div className="flex items-center justify-between">
+            {stepIndex > 1 ? (
+              <Button type="button" variant="ghost" size="sm" className="-ml-2 h-9 px-2 text-sm font-semibold text-muted-foreground hover:text-foreground" onClick={goBack} aria-label="Back to previous step">
+                <ChevronLeft /> Back
+              </Button>
+            ) : (
+              <span aria-hidden className="w-16" />
+            )}
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Step {stepIndex} of 3</p>
+            <span aria-hidden className="w-16" />
+          </div>
+          <div className="mt-2.5 flex gap-1.5" aria-hidden="true">
+            {[1, 2, 3].map((index) => (
+              <span key={index} className={`h-1 flex-1 rounded-full transition-colors duration-300 ${index <= stepIndex ? "bg-primary" : "bg-border"}`} />
+            ))}
+          </div>
+        </div>
         {step === "form" && <>
           <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription className="mt-1">20–30 min · no pitch</DialogDescription></DialogHeader>
           <form onSubmit={continueToCalendar} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
