@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { addDays, format, isBefore, startOfDay } from "date-fns";
 import { z } from "zod";
-import { ArrowDown, ArrowRight, CalendarDays, Check, ClipboardCheck, Download, Link2Off, Loader2, TrendingDown, X } from "lucide-react";
+import { ArrowDown, ArrowRight, CalendarDays, Check, ChevronLeft, ClipboardCheck, Download, Link2Off, Loader2, TrendingDown, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -185,11 +185,35 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
 
   const fieldError = (field: BookingField) => errors[field] ? <p className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors[field]}</p> : null;
 
+  const stepIndex = step === "form" ? 1 : step === "calendar" ? 2 : 3;
+  const goBack = () => {
+    if (step === "calendar") setStep("form");
+    else if (step === "done") setStep("calendar");
+  };
+
   return (
     <Dialog open={open} onOpenChange={(next) => { onOpenChange(next); if (!next) window.setTimeout(resetAfterClose, 200); }}>
       <DialogContent className="inset-0 h-dvh max-h-dvh w-full translate-x-0 translate-y-0 content-start overflow-y-auto rounded-none border-0 bg-background px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.5rem+env(safe-area-inset-top))] sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:h-auto sm:max-h-[calc(100dvh-1.5rem)] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-md sm:border sm:p-7">
+        <div>
+          <div className="flex items-center justify-between">
+            {stepIndex > 1 ? (
+              <Button type="button" variant="ghost" size="sm" className="-ml-2 h-9 px-2 text-sm font-semibold text-muted-foreground hover:text-foreground" onClick={goBack} aria-label="Back to previous step">
+                <ChevronLeft /> Back
+              </Button>
+            ) : (
+              <span aria-hidden className="w-16" />
+            )}
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Step {stepIndex} of 3</p>
+            <span aria-hidden className="w-16" />
+          </div>
+          <div className="mt-2.5 flex gap-1.5" aria-hidden="true">
+            {[1, 2, 3].map((index) => (
+              <span key={index} className={`h-1 flex-1 rounded-full transition-colors duration-300 ${index <= stepIndex ? "bg-primary" : "bg-border"}`} />
+            ))}
+          </div>
+        </div>
         {step === "form" && <>
-          <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription className="mt-1">20–30 min · no pitch</DialogDescription></DialogHeader>
+          <DialogHeader className="mt-4 pr-7 text-left sm:mt-5"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Book your free strategy call</DialogTitle><DialogDescription className="mt-1">20–30 min · no pitch</DialogDescription></DialogHeader>
           <form onSubmit={continueToCalendar} className="mt-4 grid gap-4 sm:grid-cols-2" noValidate>
             <label className="block text-sm font-semibold">Name<Input value={data.name} onChange={(e) => setField("name", e.target.value)} onBlur={() => validateField("name")} maxLength={100} className="mt-2 h-11 w-full" aria-invalid={!!errors.name} />{fieldError("name")}</label>
             <label className="block text-sm font-semibold">Email<Input type="email" value={data.email} onChange={(e) => setField("email", e.target.value)} onBlur={() => validateField("email")} maxLength={255} className="mt-2 h-11 w-full" aria-invalid={!!errors.email} />{fieldError("email")}</label>
@@ -203,7 +227,7 @@ function BookingDialog({ open, onOpenChange, onChecklist }: { open: boolean; onO
           </form>
         </>}
         {step === "calendar" && <>
-          <DialogHeader className="pr-7 text-left"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Pick a time for your 20–30 min call</DialogTitle><DialogDescription className="mt-1">Times shown in {timeZone}.</DialogDescription></DialogHeader>
+          <DialogHeader className="mt-4 pr-7 text-left sm:mt-5"><DialogTitle className="font-display text-2xl leading-tight sm:text-3xl">Pick a time for your 20–30 min call</DialogTitle><DialogDescription className="mt-1">Times shown in {timeZone}.</DialogDescription></DialogHeader>
           <div className="mt-3 grid gap-6 md:grid-cols-[auto_1fr]">
             <div className="pointer-events-auto overflow-x-auto rounded-md border border-border"><Calendar mode="single" selected={selectedDate} onSelect={(date) => { setSelectedDate(date); setSelectedTime(""); }} disabled={(date) => isBefore(date, startOfDay(new Date())) || date.getDay() === 0 || date.getDay() === 6} fromDate={new Date()} toDate={addDays(new Date(), 45)} initialFocus className="pointer-events-auto mx-auto p-3" /></div>
             <div><p className="text-sm font-semibold">{selectedDate ? format(selectedDate, "EEEE, MMMM d") : "Choose a date to see times"}</p><div className="mt-3 grid grid-cols-2 gap-3">{timeSlots.map((time) => <Button key={time} type="button" variant={selectedTime === time ? "secondary" : "outline"} className="h-11 w-full" disabled={!selectedDate} aria-pressed={selectedTime === time} onClick={() => setSelectedTime(time)}>{time}</Button>)}</div><Button type="button" size="xl" className="mt-5 w-full" disabled={!selectedDate || !selectedTime} onClick={() => setStep("done")}>Confirm time <ArrowRight /></Button><Button type="button" variant="link" className="mt-4" onClick={() => setStep("form")}>Back to details</Button></div>
